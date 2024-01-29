@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SOLIDPrinciples.2", "SOLIDPrinciples.2\SOLIDPrinciples.2.csproj", "{3359B0C6-746E-4735-AFD3-67865DF0AF52}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Builder", "Builder\Builder.csproj", "{A1D475D4-FAF6-4B8E-B901-B8C04BE31B92}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{3359B0C6-746E-4735-AFD3-67865DF0AF52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3359B0C6-746E-4735-AFD3-67865DF0AF52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3359B0C6-746E-4735-AFD3-67865DF0AF52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1D475D4-FAF6-4B8E-B901-B8C04BE31B92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1D475D4-FAF6-4B8E-B901-B8C04BE31B92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1D475D4-FAF6-4B8E-B901-B8C04BE31B92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1D475D4-FAF6-4B8E-B901-B8C04BE31B92}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
