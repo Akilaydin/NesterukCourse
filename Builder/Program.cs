@@ -1,55 +1,35 @@
 ﻿#region
-using System.Text;
-
-using static System.Console;
 #endregion
 
-Write(new ClassBuilder("Person")
-	.AddField("Name", "string", "public")
-	.AddField("Age", "int", "private")
-	.AddField("Position", "string", "private")
-	.Build());
+Point.PointsFactory.NewCartesianPoint(3, 2);
 
-public class ClassBuilder(string className)
+
+public class Point
 {
-	private List<Field> _fields = [];
+	private double _x, _y;
+
+	private Point(double y, double x)
+	{
+		_y = y;
+		_x = x;
+	}
 	
-	public Class Build()
-	{
-		return new Class(className, _fields);
-	}
-
-	public ClassBuilder AddField(string fieldName, string fieldType, string accessModifier)
-	{
-		_fields.Add(new Field(fieldName,fieldType, accessModifier));
-		
-		return this;
-	}
-}
-
-public record Class(string ClassName, List<Field> Fields)
-{
 	public override string ToString()
 	{
-		var stringBuilder = new StringBuilder();
-
-		stringBuilder.AppendLine($"public class {ClassName}");
-		stringBuilder.AppendLine("{");
-
-		foreach (var field in Fields)
+		return $"{nameof(_x)}: {_x}, {nameof(_y)}: {_y}";
+	}
+	
+	public class PointsFactory //Factory
+	{
+		public static Point NewCartesianPoint(double x, double y) //Factory method
 		{
-			stringBuilder.AppendLine($"    {field.ToString()}");
+			return new Point(x, y);
 		}
 
-		stringBuilder.AppendLine("}");
+		public static Point NewPolarPoint(double rho, double theta) //Factory method
+		{
+			return new Point(rho * Math.Cos(theta), rho * Math.Sin(theta));
+		}
+	}
+}
 
-		return stringBuilder.ToString();
-	}
-}
-public record Field(string FieldName, string FieldType, string AccessModifier)
-{
-	public override string ToString()
-	{
-		return $"{AccessModifier} {FieldType} {FieldName}";
-	}
-}
