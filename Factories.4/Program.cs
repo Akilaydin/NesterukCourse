@@ -1,6 +1,13 @@
 ﻿#region
 #endregion
 
+
+var factory = new PersonFactory();
+var artem = factory.CreatePerson("Artem");
+var andrew = factory.CreatePerson("Andrew");
+
+Console.WriteLine($"{artem} {andrew}");
+
 public class PersonFactory
 {
 	private static int s_id;
