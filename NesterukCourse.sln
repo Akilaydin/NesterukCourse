@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Singleton.6", "Singleton.6\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adapter.7", "Adapter.7\Adapter.7.csproj", "{4725BFE3-B83E-4B97-B1BB-19462EEA2C63}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bridge.8", "Bridge.8\Bridge.8.csproj", "{26420179-BD9B-409F-81D2-F111FAE1A9C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{4725BFE3-B83E-4B97-B1BB-19462EEA2C63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4725BFE3-B83E-4B97-B1BB-19462EEA2C63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4725BFE3-B83E-4B97-B1BB-19462EEA2C63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26420179-BD9B-409F-81D2-F111FAE1A9C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26420179-BD9B-409F-81D2-F111FAE1A9C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26420179-BD9B-409F-81D2-F111FAE1A9C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26420179-BD9B-409F-81D2-F111FAE1A9C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
