@@ -1,55 +1,59 @@
-﻿#region
-using System.Text;
-#endregion
+﻿using System.Collections;
+using System.Collections.ObjectModel;
 
-var drawing = new GraphicObject {Name = "My Drawing"};
+var neuron1 = new Neuron();
+var neuron2 = new Neuron();
 
-drawing.Children.Add(new Square {Color = "Red"});
-drawing.Children.Add(new Circle{Color="Yellow"});
-      
-var group = new GraphicObject {
-	Name = "Sub group"
-};
+var layer1 = new NeuronLayer(5);
+var layer2 = new NeuronLayer(3);
 
-group.Children.Add(new Circle{Color="Blue"});
-group.Children.Add(new Square{Color="Blue"});
+neuron1.ConnectTo(neuron2);
+neuron1.ConnectTo(layer1);
+layer1.ConnectTo(layer2);
 
-drawing.Children.Add(group);
-
-Console.WriteLine(drawing);
-
-internal class GraphicObject
+public static class NeuronExtensions
 {
-	public virtual string Name { get; set; } = "Group";
-	public List<GraphicObject> Children => _children.Value;
-
-	public string Color;
-
-	private Lazy<List<GraphicObject>> _children = new(() => []);
-
-	public override string ToString()
+	public static void ConnectTo(this IEnumerable<Neuron> sourceNeurons, IEnumerable<Neuron> targetNeurons)
 	{
-		var sb = new StringBuilder();
-		Print(sb, 0);
-		return sb.ToString();
-	}
-
-	private void Print(StringBuilder sb, int depth)
-	{
-		sb.Append(new string('*', depth)).Append(string.IsNullOrWhiteSpace(Color) ? string.Empty : $"{Color} ").AppendLine($"{Name}");
-		foreach (var child in Children)
+		if (ReferenceEquals(sourceNeurons, targetNeurons))
 		{
-			child.Print(sb, depth + 1);
+			return;
+		}
+
+		foreach (var sourceNeuron in sourceNeurons)
+		{
+			foreach (var targetNeuron in targetNeurons)
+			{
+				sourceNeuron.Out.Add(targetNeuron);
+				targetNeuron.In.Add(sourceNeuron);
+			}
 		}
 	}
 }
 
-internal class Square : GraphicObject
+public class Neuron : IEnumerable<Neuron>
 {
-	public override string Name => nameof(Square);
+	public List<Neuron> In = new List<Neuron>();
+	public List<Neuron> Out = new List<Neuron>();
+
+	public IEnumerator<Neuron> GetEnumerator()
+	{
+		yield return this;
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return GetEnumerator();
+	}
 }
 
-internal class Circle : GraphicObject
+public class NeuronLayer : Collection<Neuron>
 {
-	public override string Name => nameof(Circle);
+	public NeuronLayer(int count)
+	{
+		while (count --> 0)
+		{
+			Add(new Neuron());
+		}
+	}
 }
