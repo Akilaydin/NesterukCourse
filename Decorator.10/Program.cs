@@ -4,10 +4,10 @@ using System.Drawing;
 
 var circle = new Circle(2);
 
-var redCircle = new ColoredShape { Color = Color.Green, Shape = circle };
-var redTransparentCircle = new TransparentShape { TransparencyValue = 0.65f, Shape = redCircle };
+var redCircle = new ColoredShape<Circle> { Color = Color.Green};
+var redTransparentCircle = new TransparentShape<ColoredShape<Circle>> { TransparencyValue = 0.65f};
 
-Console.WriteLine(circle.AsString());
+Console.WriteLine(circle.AsString()); 
 Console.WriteLine(redCircle.AsString());
 Console.WriteLine(redTransparentCircle.AsString());
 
@@ -16,20 +16,20 @@ public abstract class Shape
 	public virtual string AsString() => string.Empty;
 }
 
-public class ColoredShape : Shape
+public class ColoredShape<T> : Shape where T : Shape, new()
 {
-	public required Shape Shape;
-	public required Color Color;
+	public Color Color;
+	private readonly Shape _shape = new T();
 
-	public override string AsString() => $"Colored shape with color of {Color.ToString()} and shape itself is {Shape.AsString()}";
+	public override string AsString() => $"Colored shape with color of {Color.ToString()} and shape itself is {_shape.AsString()}";
 }
 
-public class TransparentShape : Shape
+public class TransparentShape<T> : Shape where T : Shape, new()
 {
-	public required Shape Shape;
-	public required float TransparencyValue;
-
-	public override string AsString() => $"Transparent shape with transparency of {TransparencyValue * 100.0f} and shape itself is {Shape.AsString()}";
+	public float TransparencyValue;
+	private readonly Shape _shape = new T();
+	
+	public override string AsString() => $"Transparent shape with transparency of {TransparencyValue * 100.0f} and shape itself is {_shape.AsString()}";
 }
 
 public sealed class Circle(float radius) : Shape
