@@ -1,58 +1,59 @@
-﻿#region
-using System.Drawing;
-#endregion
+﻿using static System.Console;
 
-var circle = new Circle(2);
-
-var redCircle = new ColoredShape<Circle> { Color = Color.Green};
-var redTransparentCircle = new TransparentShape<ColoredShape<Circle>> { TransparencyValue = 0.65f};
-
-Console.WriteLine(circle.AsString()); 
-Console.WriteLine(redCircle.AsString());
-Console.WriteLine(redTransparentCircle.AsString());
-
-public abstract class Shape
+public interface ICreature
 {
-	public virtual string AsString() => string.Empty;
+	public int Age { get; set; }
 }
 
-public class ColoredShape<T> : Shape where T : Shape, new()
+public interface IFlyable : ICreature
 {
-	public Color Color;
-	private readonly Shape _shape = new T();
-
-	public override string AsString() => $"Colored shape with color of {Color.ToString()} and shape itself is {_shape.AsString()}";
+	void Fly();
 }
-
-public class TransparentShape<T> : Shape where T : Shape, new()
+public class Bird : IFlyable
 {
-	public float TransparencyValue;
-	private readonly Shape _shape = new T();
-	
-	public override string AsString() => $"Transparent shape with transparency of {TransparencyValue * 100.0f} and shape itself is {_shape.AsString()}";
-}
-
-public sealed class Circle(float radius) : Shape
-{
-
-	public Circle() : this(0)
+	public int Age { get; set; }
+	public void Fly()
 	{
-      
+		if (Age >= 10)
+		{
+			WriteLine("I am flying!");
+		}
+	}
+}
+
+public interface ICrawlable : ICreature
+{
+	void Crawl();
+}
+public class Lizard : ICrawlable
+{
+	public int Age { get; set; }
+	public void Crawl()
+	{
+		if (Age < 10)
+		{
+			WriteLine("I am crawling!");
+		}
+	}
+}
+
+public class Dragon : IFlyable, ICrawlable
+{
+	public required IFlyable Flyable;
+	public required ICrawlable Crawlable;
+
+	public int Age 
+	{
+		get => Flyable.Age;
+		set => Flyable.Age = Crawlable.Age = value;
 	}
 
-	public void Resize(float factor)
+	public void FireBreath()
 	{
-		radius *= factor;
+		Console.WriteLine("Breating fire");
 	}
 
-	public override string AsString() => $"A circle of radius {radius}";
-}
-public sealed class Square(float side) : Shape
-{
-	public Square() : this(0)
-	{
-      
-	}
+	public void Crawl() => Crawlable.Crawl();
 
-	public override string AsString() => $"A square with side {side}";
+	public void Fly() => Flyable.Fly();
 }
