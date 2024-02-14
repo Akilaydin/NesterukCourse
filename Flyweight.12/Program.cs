@@ -1,34 +1,54 @@
-﻿var user = new User("Artem Ovchinnikov");
-var user2 = new User("Eugeni Ovchinnikov");
-var user3 = new User("user Ovchinnikov");
-var user4 = new User("user2 Ovchinnikov");
+﻿using System.Text;
 
-Console.WriteLine(User.s_strings.Count); //outputs 3 because Ovchinnikov didn't allocate twice
+var text = new FormattedText("This is a brave new world");
 
-public class User
+text.GetRange(10, 15).Capitalize = true;
+
+Console.WriteLine(text);
+
+public class FormattedText(string plainText)
 {
-	public string FullName => string.Join(" ", _names.Select(index => s_strings[index])); //cache
-	
-	public static List<string> s_strings = new();
-	
-	private int[] _names;
+	private readonly List<TextRange> _formatting = [];
 
-	public User(string fullName)
+	public TextRange GetRange(int start, int end)
 	{
-		_names = fullName.Split(' ').Select(GetOrAdd).ToArray();
+		var range = new TextRange {Start = start, End = end};
+		
+		_formatting.Add(range);
+		
+		return range;
 	}
 
-	private int GetOrAdd(string s)
+	public override string ToString()
 	{
-		var index = s_strings.IndexOf(s);
-		
-		if (index != -1)
+		var sb = new StringBuilder();
+
+		for (int i = 0; i < plainText.Length; i++)
 		{
-			return index;
+			var character = plainText[i];
+			
+			foreach (var format in _formatting)
+			{
+				if (format.Covers(i) && format.Capitalize)
+				{
+					character = char.ToUpperInvariant(character);
+				}
+
+				sb.Append(character);
+			}
 		}
 		
-		s_strings.Add(s);
-		
-		return s_strings.Count - 1;
+		return sb.ToString();
+	}
+
+	public class TextRange
+	{
+		public required int Start, End;
+		public bool Capitalize, Bold, Italic;
+
+		public bool Covers(int position)
+		{
+			return position >= Start && position <= End;
+		}
 	}
 }
