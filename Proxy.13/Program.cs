@@ -1,44 +1,64 @@
 ﻿using static System.Console;
 
-var image = new LazyBitmap("Pokemon.png");
+var creature = new Creature {
+	Agility = {
+		Value = 15
+	}
+};
 
-DrawImage(image);
+WriteLine(creature.Agility);
 
-static void DrawImage(IBitmap img)
+class Creature
 {
-	WriteLine("Preparing to draw");
-	img.Draw();
-	WriteLine("Done drawing");
+	public Property<int> Agility { get; } = new();
 }
 
-internal interface IBitmap
+class Property<T>(T value, string name) where T : new()
 {
-	void Draw();
-}
-
-class LazyBitmap(string fileName) : IBitmap
-{
-	private Bitmap? _bitmap = null!;
-
-	public void Draw()
+	protected bool Equals(Property<T> other)
 	{
-		_bitmap ??= new Bitmap(fileName);
-
-		_bitmap.Draw();
+		return EqualityComparer<T>.Default.Equals(_value, other._value);
 	}
-}
-
-class Bitmap : IBitmap
-{
-	private readonly string _fileName;
-	public Bitmap(string fileName)
+	
+	public override bool Equals(object? obj)
 	{
-		_fileName = fileName;
-		WriteLine("Loading image from filename " + _fileName);
+		if (ReferenceEquals(null, obj))
+		{
+			return false;
+		}
+		if (ReferenceEquals(this, obj))
+		{
+			return true;
+		}
+		if (obj.GetType() != this.GetType())
+		{
+			return false;
+		}
+		return Equals((Property<T>)obj);
+	}
+	
+	public override int GetHashCode()
+	{
+		return EqualityComparer<T>.Default.GetHashCode(_value);
+	}
+	
+	public T Value {
+		get => _value;
+		set {
+			if (Equals(_value, value))
+			{
+				return;
+			}
+			WriteLine("Assigning value " + value + " to name " + name);
+			_value = value;
+		}
 	}
 
-	public void Draw()
-	{
-		WriteLine("Drawing image " + _fileName);
-	}
+	private T _value = value;
+
+	public Property() : this(default, nameof(Property<T>)) { }
+	public Property(T value) : this(default, nameof(Property<T>)) { }
+
+	public static implicit operator T(Property<T> p) => p._value;
+	public static implicit operator Property<T>(T v) => new(v);
 }
