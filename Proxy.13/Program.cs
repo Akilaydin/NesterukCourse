@@ -1,64 +1,54 @@
-﻿using static System.Console;
+﻿Console.WriteLine(10m * 7.Percent());
+Console.WriteLine(2m.Percent() * 2m.Percent());
 
-var creature = new Creature {
-	Agility = {
-		Value = 15
-	}
-};
-
-WriteLine(creature.Agility);
-
-class Creature
+public struct Percentage(decimal value) : IEquatable<Percentage>
 {
-	public Property<int> Agility { get; } = new();
-}
+	private readonly decimal _value = value;
 
-class Property<T>(T value, string name) where T : new()
-{
-	protected bool Equals(Property<T> other)
+	public static implicit operator Percentage(int value)
 	{
-		return EqualityComparer<T>.Default.Equals(_value, other._value);
+		return value.Percent();
 	}
-	
+
+	public static decimal operator *(decimal a, Percentage b)
+	{
+		return b._value * a;
+	}
+
+	public static Percentage operator *(Percentage a, Percentage b)
+	{
+		return (a._value * b._value).Percent();
+	}
+
+	public override string ToString()
+	{
+		return $"{_value * 100}%";
+	}
+
+	public bool Equals(Percentage other)
+	{
+		return _value == other._value;
+	}
 	public override bool Equals(object? obj)
 	{
-		if (ReferenceEquals(null, obj))
-		{
-			return false;
-		}
-		if (ReferenceEquals(this, obj))
-		{
-			return true;
-		}
-		if (obj.GetType() != this.GetType())
-		{
-			return false;
-		}
-		return Equals((Property<T>)obj);
+		return obj is Percentage other && Equals(other);
 	}
-	
+
 	public override int GetHashCode()
 	{
-		return EqualityComparer<T>.Default.GetHashCode(_value);
+		return base.GetHashCode();
+	}
+}
+
+static class Extensions
+{
+	public static Percentage Percent(this int value)
+	{
+		return new Percentage(value / 100.0m);
 	}
 	
-	public T Value {
-		get => _value;
-		set {
-			if (Equals(_value, value))
-			{
-				return;
-			}
-			WriteLine("Assigning value " + value + " to name " + name);
-			_value = value;
-		}
+	public static Percentage Percent(this decimal value)
+	{
+		return new Percentage(value / 100.0m);
 	}
-
-	private T _value = value;
-
-	public Property() : this(default, nameof(Property<T>)) { }
-	public Property(T value) : this(default, nameof(Property<T>)) { }
-
-	public static implicit operator T(Property<T> p) => p._value;
-	public static implicit operator Property<T>(T v) => new(v);
 }
