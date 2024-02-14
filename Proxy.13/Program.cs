@@ -1,36 +1,44 @@
-﻿ICar car = new CarProxy(new Car(), new Driver { Age = 15 });
+﻿using static System.Console;
 
-car.Drive();
+var image = new LazyBitmap("Pokemon.png");
 
-internal interface ICar
+DrawImage(image);
+
+static void DrawImage(IBitmap img)
 {
-	void Drive();
+	WriteLine("Preparing to draw");
+	img.Draw();
+	WriteLine("Done drawing");
 }
 
-class Car : ICar
+internal interface IBitmap
 {
-	public void Drive()
+	void Draw();
+}
+
+class LazyBitmap(string fileName) : IBitmap
+{
+	private Bitmap? _bitmap = null!;
+
+	public void Draw()
 	{
-		Console.WriteLine("Car is driven");
+		_bitmap ??= new Bitmap(fileName);
+
+		_bitmap.Draw();
 	}
 }
 
-class Driver
+class Bitmap : IBitmap
 {
-	public required int Age;
-}
-
-class CarProxy(Car car, Driver driver) : ICar
-{
-	public void Drive()
+	private readonly string _fileName;
+	public Bitmap(string fileName)
 	{
-		if (driver.Age <= 16)
-		{
-			Console.WriteLine("Can't drive");
-		}
-		else
-		{
-			car.Drive();
-		}
+		_fileName = fileName;
+		WriteLine("Loading image from filename " + _fileName);
+	}
+
+	public void Draw()
+	{
+		WriteLine("Drawing image " + _fileName);
 	}
 }
