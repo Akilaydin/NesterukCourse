@@ -1,54 +1,49 @@
-﻿Console.WriteLine(10m * 7.Percent());
-Console.WriteLine(2m.Percent() * 2m.Percent());
+﻿using System.Collections;
 
-public struct Percentage(decimal value) : IEquatable<Percentage>
+// var creatures = new BadCreature[100];
+//
+// foreach (var c in creatures)
+// {
+// 	c.X++; // not memory-efficient
+// }
+
+var creatures2 = new Creatures(100);
+
+foreach (var c in creatures2)
 {
-	private readonly decimal _value = value;
+	c.X++;
+	Console.Write(c.X);
+}
 
-	public static implicit operator Percentage(int value)
+public class Creatures(int size) : IEnumerable<Creatures.Creature>
+{
+	private byte[] _ages = new byte [size];
+	private int[] _x = new int[size];
+	private int[] _y = new int[size];
+	
+	public struct Creature(Creatures creatures, int index)
 	{
-		return value.Percent();
+		public ref byte Age => ref creatures._ages[index];
+		public ref int X => ref creatures._x[index];
+		public ref int Y => ref creatures._y[index];
 	}
 
-	public static decimal operator *(decimal a, Percentage b)
+	public IEnumerator<Creature> GetEnumerator()
 	{
-		return b._value * a;
+		for (int pos = 0; pos < size; ++pos)
+		{
+			yield return new Creature(this, pos);
+		}
 	}
 
-	public static Percentage operator *(Percentage a, Percentage b)
+	IEnumerator IEnumerable.GetEnumerator()
 	{
-		return (a._value * b._value).Percent();
-	}
-
-	public override string ToString()
-	{
-		return $"{_value * 100}%";
-	}
-
-	public bool Equals(Percentage other)
-	{
-		return _value == other._value;
-	}
-	public override bool Equals(object? obj)
-	{
-		return obj is Percentage other && Equals(other);
-	}
-
-	public override int GetHashCode()
-	{
-		return base.GetHashCode();
+		return GetEnumerator();
 	}
 }
 
-static class Extensions
+public class BadCreature
 {
-	public static Percentage Percent(this int value)
-	{
-		return new Percentage(value / 100.0m);
-	}
-	
-	public static Percentage Percent(this decimal value)
-	{
-		return new Percentage(value / 100.0m);
-	}
+	public byte Age;
+	public int X, Y;
 }
