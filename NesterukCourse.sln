@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flyweight.12", "Flyweight.1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proxy.13", "Proxy.13\Proxy.13.csproj", "{F6374958-4F3A-4A64-8F50-961B3AB9F7CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChainOfResponsibility.14", "ChainOfResponsibility.14\ChainOfResponsibility.14.csproj", "{CEBE482D-DC6C-4F86-A271-523C6C134C8E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,5 +80,9 @@ Global
 		{F6374958-4F3A-4A64-8F50-961B3AB9F7CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6374958-4F3A-4A64-8F50-961B3AB9F7CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6374958-4F3A-4A64-8F50-961B3AB9F7CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEBE482D-DC6C-4F86-A271-523C6C134C8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEBE482D-DC6C-4F86-A271-523C6C134C8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEBE482D-DC6C-4F86-A271-523C6C134C8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEBE482D-DC6C-4F86-A271-523C6C134C8E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
