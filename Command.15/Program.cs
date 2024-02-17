@@ -1,31 +1,85 @@
-﻿var account = new BankAccount(1000);
-var depositCommand = new BankAccountCommand(account, BankAccountAction.Deposit, 500);
-var withdrawCommand = new BankAccountCommand(account, BankAccountAction.Withdraw, 500);
+﻿var account1 = new BankAccount(1000);
+var account2 = new BankAccount(5000);
 
-depositCommand.Do();
-withdrawCommand.Do();
+var command = new MoneyTransferCommand(account1, account2, 444);
 
-Console.WriteLine(account.ToString());
+Console.WriteLine(account1.ToString());
+Console.WriteLine(account2.ToString());
+Console.WriteLine("==================");
+
+Console.WriteLine(command.Do());
+Console.WriteLine(account1.ToString());
+Console.WriteLine(account2.ToString());
+Console.WriteLine("==================");
+
+command.Undo();
+
+Console.WriteLine(account1.ToString());
+Console.WriteLine(account2.ToString());
+Console.WriteLine("==================");
+public class MoneyTransferCommand : CompositeCommand
+{
+	public MoneyTransferCommand(BankAccount from, BankAccount to, int amount)
+	{
+		AddRange(new [] {
+			new BankAccountCommand(from, BankAccountAction.Withdraw, amount),
+			new BankAccountCommand(to, BankAccountAction.Deposit, amount)
+		});
+	}
+}
+
+public class CompositeCommand : List<ICommand>, ICommand
+{
+	public bool Do() => ExecuteCommands(command => command.Do(), true);
+
+	public bool Undo() => ExecuteCommands(command => command.Undo(), false);
+
+	private bool ExecuteCommands(Func<ICommand, bool> operation, bool executeForward)
+	{
+		var commandStack = new Stack<ICommand>();
+
+		foreach (var command in GetCommands())
+		{
+			if (operation(command))
+			{
+				commandStack.Push(command);
+			}
+			else
+			{
+				while (commandStack.TryPop(out var doneCommand))
+				{
+					doneCommand.Undo();
+				}
+
+				return false;
+			}
+		}
+
+		return true;
+
+		IEnumerable<ICommand> GetCommands() => executeForward ? this.AsEnumerable() : this.AsEnumerable().Reverse();
+	}
+}
 
 public class BankAccount(int balance, int overdraftLimit = 500)
 {
-	public void Deposit(int amount)
+	public bool Deposit(int amount)
 	{
 		balance += amount;
-		Console.WriteLine($"Deposited {amount}. Current balance is {balance}");
+		Console.WriteLine($"Deposited ${amount}, balance is now {balance}");
+		return true;
 	}
-	
-	public void Withdraw(int amount)
+
+	public bool Withdraw(int amount)
 	{
-		if (balance + overdraftLimit > amount)
+		if (balance - amount >= overdraftLimit)
 		{
 			balance -= amount;
-			Console.WriteLine($"Withdraw {amount}. Current balance is {balance}");
+			Console.WriteLine($"Withdrew ${amount}, balance is now {balance}");
+			return true;
 		}
-		else
-		{
-			Console.WriteLine("Don't have enough money");
-		}
+		
+		return false;
 	}
 	
 	public override string ToString() {
@@ -33,19 +87,47 @@ public class BankAccount(int balance, int overdraftLimit = 500)
 	}
 }
 
-public class BankAccountCommand(BankAccount account, BankAccountAction action, int amount)
+public interface ICommand
+{ 
+	bool Do();
+
+	bool Undo();
+}
+
+public class BankAccountCommand(BankAccount account, BankAccountAction action, int amount) : ICommand
 {
-	public void Do()
+	public bool Do()
 	{
+		bool result = false;
+		
 		switch (action)
 		{
 			case BankAccountAction.Deposit:
-				account.Deposit(amount);
+				result = account.Deposit(amount);
 				break;
 			case BankAccountAction.Withdraw:
-				account.Withdraw(amount);
+				result = account.Withdraw(amount);
 				break;
 		}
+
+		return result;
+	}
+
+	public bool Undo()
+	{
+		bool result = false;
+
+		switch (action)
+		{
+			case BankAccountAction.Withdraw:
+				result = account.Deposit(amount);
+				break;
+			case BankAccountAction.Deposit:
+				result = account.Withdraw(amount);
+				break;
+		}
+		
+		return result;
 	}
 }
 
