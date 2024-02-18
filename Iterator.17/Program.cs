@@ -1,11 +1,13 @@
 ﻿var root = new Node<int>(1, new Node<int>(2), new Node<int>(3));
-var iterator = new InOrderIterator<int>(root);
 
-while (iterator.MoveNext())
+var tree = new BinaryTree<int>(root);
+
+foreach (var node in tree)
 {
-	Console.Write(iterator.Current.Value);
-	Console.Write(',');
+	Console.WriteLine(node.Value);
 }
+
+Console.WriteLine(string.Join(",", tree.InOrder.Select(x => x.Value)));
 
 public class Node<T>
 {
@@ -25,6 +27,44 @@ public class Node<T>
 		Right = right;
 
 		left.Parent = right.Parent = this;
+	}
+}
+
+public class BinaryTree<T>
+{
+	public IEnumerable<Node<T>> InOrder
+	{
+		get
+		{
+			IEnumerable<Node<T>> TraverseInOrder(Node<T> current)
+			{
+				if (current.Left != null)
+				{
+					foreach (var left in TraverseInOrder(current.Left))
+						yield return left;
+				}
+				yield return current;
+				if (current.Right != null)
+				{
+					foreach (var right in TraverseInOrder(current.Right))
+						yield return right;
+				}
+			}
+			foreach (var node in TraverseInOrder(_root))
+				yield return node;
+		}
+	}
+
+	public InOrderIterator<T> GetEnumerator()
+	{
+		return new InOrderIterator<T>(_root);
+	}
+
+	private Node<T> _root;
+
+	public BinaryTree(Node<T> root) 
+	{
+		_root = root;
 	}
 }
 
