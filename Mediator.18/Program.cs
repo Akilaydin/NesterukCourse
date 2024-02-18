@@ -1,62 +1,67 @@
-﻿var room = new ChatRoom();
-var artem = new Person("Artem");
-var pasha = new Person("Pasha");
+﻿var game = new Game();
+var player = new Player("Artem", game);
+var coach = new Coach(game);
 
-room.JoinRoom(artem);
-room.JoinRoom(pasha);
+player.Score();
+player.Score();
+player.Score();
+player.Score();
+player.Score();
 
-artem.SendPublicMessage("Hey all");
-pasha.SendPrivateMessage("Artem", "Hello to you too!");
-
-public class ChatRoom
+public abstract class GameEventArgs : EventArgs
 {
-	private List<Person> _chatParticipants = new();
+	public abstract void Print();
+}
 
-	public void Broadcast(string name, string message)
+public class PlayerScoredEventArgs(string playerName, int goalsScoredSoFar) : GameEventArgs
+{
+	public readonly string PlayerName = playerName;
+	public readonly int GoalsScoredSoFar = goalsScoredSoFar;
+
+	public override void Print()
 	{
-		foreach (var receiver in _chatParticipants.Where(x => x.Name != name))
-		{
-			receiver.Receive(name, message);
-		}
-	}
-
-	public void JoinRoom(Person p)
-	{
-		string joinMessage = $"{p.Name} joined the chat";
-		Broadcast("Room", joinMessage);
-
-		p.Room = this;
-		_chatParticipants.Add(p);
-	}
-
-	public void SendPrivateMessage(string name, string to, string message)
-	{
-		_chatParticipants.FirstOrDefault(x => x.Name == to)?.Receive(name, message);
+		Console.WriteLine($"{PlayerName} scored {GoalsScoredSoFar} goals so far");
 	}
 }
 
-public class Person
+public class Game
 {
-	public string Name;
-	public ChatRoom Room;
-	private List<string> _chatLog = new List<string>();
+	public event EventHandler<GameEventArgs> Events;
 
-	public Person(string name) 
+	public void Fire(GameEventArgs args)
 	{
-		Name = name;
+		Events?.Invoke(this, args);
 	}
+}
 
-	public void Receive(string sender, string message)
+public class Player(string name, Game game)
+{
+	private int _goalsScored;
+
+	public void Score()
 	{
-		string s = $"{sender}: '{message}'";
-		Console.WriteLine($"[{Name}'s chat session] {s}");
-		_chatLog.Add(s);
+		_goalsScored++;
+		var args = new PlayerScoredEventArgs(playerName: name, _goalsScored);
+		game.Fire(args);
 	}
+}
 
-	public void SendPublicMessage(string message) => Room.Broadcast(Name, message);
+public class Coach
+{
+	private Game _game;
 
-	public void SendPrivateMessage(string to, string message)
+	public Coach(Game game) 
 	{
-		Room.SendPrivateMessage(Name, to, message);
+		_game = game;
+
+		_game.Events += (_, args) =>
+		{
+			args.Print();
+			
+			if (args is PlayerScoredEventArgs { GoalsScoredSoFar: > 3 } scoredEventArgs)
+			{
+				Console.WriteLine($"Coach says: well done, {scoredEventArgs.PlayerName}!");
+			}
+		};
 	}
 }
