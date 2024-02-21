@@ -1,30 +1,69 @@
-﻿var person = new Person();
+﻿
+var observer = new PersonObserver();
+var person = new Person();
+var sub = person.Subscribe(observer);
+person.CatchACold();
+sub.Dispose();
+person.CatchACold();
 
-void OnPersonOnFallsIll(object? sender, FallsIllEventArgs eventArgs)
+
+public class PersonObserver : IObserver<EventBase>
 {
-	Console.WriteLine($"Calling a doctor to {eventArgs.Address}");
-}
+	public void OnCompleted() { }
 
-person.FallsIll += OnPersonOnFallsIll;
-person.FallsIll += OnPersonOnFallsIll;
+	public void OnError(Exception error) { }
 
-person.FallIll();
-
-person.FallsIll -= OnPersonOnFallsIll;
-
-person.FallIll();
-
-public class FallsIllEventArgs : EventArgs
-{
-	public required string Address;
-}
-
-public class Person
-{
-	public event EventHandler<FallsIllEventArgs> FallsIll;
-
-	public void FallIll()
+	public void OnNext(EventBase value)
 	{
-		FallsIll?.Invoke(this, new FallsIllEventArgs {Address = "Moscow"});
+		if (value is FallsIllEvent args)
+		{
+			Console.WriteLine($"Calling a doctor to {args.Address}");
+		}
+	}
+}
+public class EventBase
+{
+	
+}
+
+public class FallsIllEvent : EventBase
+{
+	public string Address;
+
+	public FallsIllEvent(string address) 
+	{
+		Address = address;
+	}
+}
+
+public class Person : IObservable<EventBase>
+{
+	private readonly HashSet<Subscription> _subscriptions = new();
+
+	public void CatchACold()
+	{
+		foreach (var subscription in _subscriptions)
+		{
+			subscription.Observer.OnNext(new FallsIllEvent("Moscow"));
+		}
+	}
+
+	public IDisposable Subscribe(IObserver<EventBase> observer)
+	{
+		var subscription = new Subscription(this, observer);
+
+		_subscriptions.Add(subscription);
+
+		return subscription;
+	}
+
+	private class Subscription(Person person, IObserver<EventBase> observer) : IDisposable
+	{
+		public IObserver<EventBase> Observer { get; } = observer;
+		
+		public void Dispose()
+		{
+			person._subscriptions.Remove(this);
+		}
 	}
 }
