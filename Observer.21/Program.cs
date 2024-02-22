@@ -1,69 +1,42 @@
-﻿
-var observer = new PersonObserver();
-var person = new Person();
-var sub = person.Subscribe(observer);
-person.CatchACold();
-sub.Dispose();
-person.CatchACold();
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
-
-public class PersonObserver : IObserver<EventBase>
+public class Person : INotifyPropertyChanged, INotifyPropertyChanging
 {
-	public void OnCompleted() { }
-
-	public void OnError(Exception error) { }
-
-	public void OnNext(EventBase value)
-	{
-		if (value is FallsIllEvent args)
-		{
-			Console.WriteLine($"Calling a doctor to {args.Address}");
+	private int _age;
+	public int Age {
+		get => _age;
+		set {
+			if (value == _age)
+			{
+				return;
+			}
+			OnPropertyChanging(); //will fill property name parameter with "Age"
+			_age = value;
+			OnPropertyChanged(nameof(Age)); //also will fill property name parameter with "Age"
 		}
 	}
-}
-public class EventBase
-{
+	public event PropertyChangedEventHandler? PropertyChanged;
+	public event PropertyChangingEventHandler? PropertyChanging;
+
+	protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+	{
+		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	}
 	
-}
-
-public class FallsIllEvent : EventBase
-{
-	public string Address;
-
-	public FallsIllEvent(string address) 
+	protected virtual void OnPropertyChanging([CallerMemberName] string? propertyName = null)
 	{
-		Address = address;
+		PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
 	}
-}
-
-public class Person : IObservable<EventBase>
-{
-	private readonly HashSet<Subscription> _subscriptions = new();
-
-	public void CatchACold()
+	
+	protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
 	{
-		foreach (var subscription in _subscriptions)
+		if (EqualityComparer<T>.Default.Equals(field, value))
 		{
-			subscription.Observer.OnNext(new FallsIllEvent("Moscow"));
+			return false;
 		}
-	}
-
-	public IDisposable Subscribe(IObserver<EventBase> observer)
-	{
-		var subscription = new Subscription(this, observer);
-
-		_subscriptions.Add(subscription);
-
-		return subscription;
-	}
-
-	private class Subscription(Person person, IObserver<EventBase> observer) : IDisposable
-	{
-		public IObserver<EventBase> Observer { get; } = observer;
-		
-		public void Dispose()
-		{
-			person._subscriptions.Remove(this);
-		}
+		field = value;
+		OnPropertyChanged(propertyName);
+		return true;
 	}
 }
