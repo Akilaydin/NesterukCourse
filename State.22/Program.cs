@@ -1,44 +1,26 @@
-﻿using System.Text;
+﻿using Stateless;
 
-const string code = "1234";
+using static System.Console;
 
-var currentState = LockState.Locked;
-var input = new StringBuilder();
-var mockInputData = new Queue<int>(new[] { 1, 2, 2, 4 });
+var light = new StateMachine<bool, LightTrigger>(false);
 
-while (true)
+light.Configure(false).Permit(LightTrigger.On, true).OnEntry(transition =>
 {
-	switch (currentState)
-	{
-		case LockState.Locked:
-			var inputValue = mockInputData.Dequeue();
-			Console.WriteLine($"Input: {inputValue}");
-			input.Append(inputValue);
-			
-			if (input.ToString() == code)
-			{
-				currentState = LockState.Unlocked;
-			}
+	WriteLine(transition.IsReentry ? "Light already off" : "Switching light off");
+}).PermitReentry(LightTrigger.Off);
 
-			if (!code.StartsWith(input.ToString()))
-			{
-				currentState = LockState.FailedToUnlock;
-			}
-			
-			break;
-			
-		case LockState.FailedToUnlock:
-			Console.WriteLine("Failed to unlock =(");
-			return;
-		case LockState.Unlocked:
-			Console.WriteLine("Unlocked!");
-			return;
-	}
-}
-
-public enum LockState
+light.Configure(true).Permit(LightTrigger.Off, false).OnEntry(() =>
 {
-	Locked,
-	FailedToUnlock,
-	Unlocked
+	WriteLine("Turning light on");
+}).Ignore(LightTrigger.On);
+
+light.Fire(LightTrigger.Off);
+light.Fire(LightTrigger.On);
+light.Fire(LightTrigger.On);
+light.Fire(LightTrigger.Off);
+light.Fire(LightTrigger.Off);
+
+public enum LightTrigger
+{
+	On, Off
 }
