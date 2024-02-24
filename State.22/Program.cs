@@ -1,57 +1,62 @@
-﻿var lightSwitch = new LightSwitch();
+﻿var rules = new Dictionary<State, List<(Trigger, State)>> {
+	[State.OffHook] = [(Trigger.CallDialed, State.Connecting)],
+	[State.Connecting] = [
+		(Trigger.HungUp, State.OnHook),
+		(Trigger.CallConnected, State.Connected)
+	],
+	[State.Connected] = [
+		(Trigger.LeftMessage, State.OnHook),
+		(Trigger.HungUp, State.OnHook),
+		(Trigger.PlacedOnHold, State.OnHold)
+	],
+	[State.OnHold] = [
+		(Trigger.TakenOffHold, State.Connected),
+		(Trigger.HungUp, State.OnHook)
+	]
+};
 
-lightSwitch.On();
-lightSwitch.Off();
-lightSwitch.Off();
+State 
+	state = State.OffHook, 
+	exitState = State.OnHook;
 
-lightSwitch.On();
-lightSwitch.On();
+var queue = new Queue<int>(new[]{0, 1, 2, 0, 0});
 
-public class LightSwitch
+do
 {
-	public LightSwitchState CurrentState = new OffLightSwitchState();
-	
-	public void On()
-	{
-		CurrentState.On(this);
-	}
-	
-	public void Off()
-	{
-		CurrentState.Off(this);	
-	}
-}
+	Console.WriteLine($"The phone is currently {state}");
+	Console.WriteLine("Select a trigger:");
 
-public abstract class LightSwitchState
-{
-	public virtual void On(LightSwitch sw) { }
-	public virtual void Off(LightSwitch sw) { }
-}
-
-public class OnLightSwitchState : LightSwitchState
-{
-	public override void On(LightSwitch sw)
+	for (var i = 0; i < rules[state].Count; i++)
 	{
-		Console.WriteLine("Light already turned on");
+		var (t, _) = rules[state][i];
+		Console.WriteLine($"{i}. {t}");
 	}
 
-	public override void Off(LightSwitch sw)
-	{
-		Console.WriteLine("Turning light off");
-		sw.CurrentState = new OffLightSwitchState();
-	}
-}
+	int input = int.Parse(Console.ReadLine());
+	Console.WriteLine($"Chosen {input}");
 
-public class OffLightSwitchState : LightSwitchState
-{
-	public override void On(LightSwitch sw)
-	{
-		Console.WriteLine("Turning light on");
-		sw.CurrentState = new OnLightSwitchState();
-	}
-	
-	public override void Off(LightSwitch sw)
-	{
-		Console.WriteLine("Light already turned off");
-	}
-}
+	var (_, s) = rules[state][input];
+	state = s;
+} 
+while (state != exitState);
+
+Console.WriteLine("We are done using the phone.");
+
+public enum State
+ {
+	 OffHook,
+	 Connecting,
+	 Connected,
+	 OnHold,
+	 OnHook
+ }
+
+ public enum Trigger
+ {
+	 CallDialed,
+	 HungUp,
+	 CallConnected,
+	 PlacedOnHold,
+	 TakenOffHold,
+	 LeftMessage
+ }
