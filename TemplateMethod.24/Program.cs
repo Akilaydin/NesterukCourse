@@ -1,48 +1,39 @@
 ﻿using static System.Console;
 
-Game game = new Chess();
-game.Run();
+const int numberOfPlayers = 2;
+const int maxTurns = 10;
+int currentPlayer = 0;
+int turn = 1;
 
-public abstract class Game(int numberOfPlayers)
+GameTemplate.Run(Start, TakeTurn, HaveWinner, WinningPlayer);
+return;
+
+void Start() => WriteLine($"Starting a game of chess with {numberOfPlayers} players.");
+
+void TakeTurn()
 {
-	public void Run()
-	{
-		Start();
-		while (!HaveWinner)
-		{
-			TakeTurn();
-		}
-		
-		WriteLine($"Player {WinningPlayer} wins.");
-	}
-
-	protected abstract void Start();
-	protected abstract bool HaveWinner { get; }
-	protected abstract void TakeTurn();
-	protected abstract int WinningPlayer { get; }
-
-	protected int CurrentPlayer;
-
-	protected readonly int NumberOfPlayers = numberOfPlayers;
+	WriteLine($"Turn {turn++} taken by player {currentPlayer}.");
+	currentPlayer = (currentPlayer + 1) % numberOfPlayers;
 }
 
-public class Chess() : Game(2)
+bool HaveWinner() => turn == maxTurns;
+
+int WinningPlayer() => currentPlayer;
+
+public static class GameTemplate
 {
-	protected override void Start()
+	public static void Run(
+		Action start,
+		Action takeTurn,
+		Func<bool> haveWinner,
+		Func<int> winningPlayer)
 	{
-		WriteLine($"Starting a game of chess with {NumberOfPlayers} players.");
+		start();
+		while (!haveWinner())
+		{
+			takeTurn();
+		}
+		
+		WriteLine($"Player {winningPlayer()} wins.");
 	}
-
-	protected override bool HaveWinner => _turn == s_maxTurns;
-
-	protected override void TakeTurn()
-	{
-		WriteLine($"Turn {_turn++} taken by player {CurrentPlayer}.");
-		CurrentPlayer = (CurrentPlayer + 1) % NumberOfPlayers;
-	}
-
-	protected override int WinningPlayer => CurrentPlayer;
-
-	private const int s_maxTurns = 10;
-	private int _turn = 1;
 }
