@@ -2,35 +2,20 @@
 
 using static System.Console;
 
-var tp = new TextProcessor();
+var markdownProcessor = new TextProcessor<MarkdownTextProcessingStrategy>();
+var htmlProcessor = new TextProcessor<HtmlTextProcessingStrategy>();
 
-tp.SetTextProcessingFormat(TextProcessingFormat.Markdown);
-tp.ProcessText(new []{"foo", "bar", "baz"});
-WriteLine(tp);
+markdownProcessor.ProcessText(new []{"foo", "bar", "baz"});
+WriteLine(markdownProcessor);
 
-tp.Clear();
+htmlProcessor.ProcessText(new []{"foo", "bar", "baz"});
+WriteLine(htmlProcessor);
 
-tp.SetTextProcessingFormat(TextProcessingFormat.Html);
-tp.ProcessText(new []{"foo", "bar", "baz"});
-WriteLine(tp);
-
-public class TextProcessor
+public class TextProcessor<TStrategy> where TStrategy : ITextProcessingStrategy, new()
 {
 	private StringBuilder _builder = new();
-	private ITextProcessingStrategy? _textProcessingStrategy;
-
-	public void SetTextProcessingFormat(TextProcessingFormat format)
-	{
-		switch (format)
-		{
-			case TextProcessingFormat.Markdown:
-				_textProcessingStrategy = new MarkdownTextProcessingStrategy();
-				break;
-			case TextProcessingFormat.Html:
-				_textProcessingStrategy = new HtmlTextProcessingStrategy();
-				break;
-		}
-	}
+	//private ITextProcessingStrategy? _textProcessingStrategy = new TStrategy();
+	private ITextProcessingStrategy? _textProcessingStrategy = (ITextProcessingStrategy)Activator.CreateInstance(typeof(TStrategy))!;
 
 	public void Clear()
 	{
