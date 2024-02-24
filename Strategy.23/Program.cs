@@ -1,75 +1,148 @@
-﻿using System.Text;
+﻿var people = new List<Person>();
 
-using static System.Console;
+people.Sort();
+people.Sort((x,y) => string.Compare(x.Name, y.Name, StringComparison.Ordinal));
+people.Sort(Person.nameComparer);
 
-var markdownProcessor = new TextProcessor<MarkdownTextProcessingStrategy>();
-var htmlProcessor = new TextProcessor<HtmlTextProcessingStrategy>();
-
-markdownProcessor.ProcessText(new []{"foo", "bar", "baz"});
-WriteLine(markdownProcessor);
-
-htmlProcessor.ProcessText(new []{"foo", "bar", "baz"});
-WriteLine(htmlProcessor);
-
-public class TextProcessor<TStrategy> where TStrategy : ITextProcessingStrategy, new()
+public class Person : IEquatable<Person>, IComparable<Person>, IComparable
 {
-	private StringBuilder _builder = new();
-	//private ITextProcessingStrategy? _textProcessingStrategy = new TStrategy();
-	private ITextProcessingStrategy? _textProcessingStrategy = (ITextProcessingStrategy)Activator.CreateInstance(typeof(TStrategy))!;
-
-	public void Clear()
+	private sealed class NameRelationalComparer : IComparer<Person>
 	{
-		_builder.Clear();
-	}
-	
-	public void ProcessText(IEnumerable<string> items)
-	{
-		_textProcessingStrategy.Start(_builder);
-		foreach (var item in items)
+		public int Compare(Person x, Person y)
 		{
-			_textProcessingStrategy.ProcessItem(_builder, item);
+			if (ReferenceEquals(x, y))
+			{
+				return 0;
+			}
+			if (ReferenceEquals(null, y))
+			{
+				return 1;
+			}
+			if (ReferenceEquals(null, x))
+			{
+				return -1;
+			}
+			return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
 		}
-		_textProcessingStrategy.End(_builder);
 	}
-
-	public override string ToString()
+	public static IComparer<Person> nameComparer { get; } = new NameRelationalComparer();
+	private sealed class NameEqualityComparer : IEqualityComparer<Person>
 	{
-		return _builder.ToString();
+		public bool Equals(Person x, Person y)
+		{
+			if (ReferenceEquals(x, y))
+			{
+				return true;
+			}
+			if (ReferenceEquals(x, null))
+			{
+				return false;
+			}
+			if (ReferenceEquals(y, null))
+			{
+				return false;
+			}
+			if (x.GetType() != y.GetType())
+			{
+				return false;
+			}
+			return x.Name == y.Name;
+		}
+		public int GetHashCode(Person obj)
+		{
+			return obj.Name.GetHashCode();
+		}
 	}
-}
-
-public interface ITextProcessingStrategy
-{
-	void Start(StringBuilder sb);
-	void End(StringBuilder sb);
-	void ProcessItem(StringBuilder sb, string item);
-}
-
-public class MarkdownTextProcessingStrategy : ITextProcessingStrategy
-{
-	public void Start(StringBuilder sb) { }
-
-	public void End(StringBuilder sb) { }
-
-	public void ProcessItem(StringBuilder sb, string item)
+	public static IEqualityComparer<Person> nameEqualityComparer { get; } = new NameEqualityComparer();
+	public int CompareTo(Person? other)
 	{
-		sb.AppendLine($" * {item}");
+		if (ReferenceEquals(this, other))
+		{
+			return 0;
+		}
+		if (ReferenceEquals(null, other))
+		{
+			return 1;
+		}
+		var idComparison = Id.CompareTo(other.Id);
+		if (idComparison != 0)
+		{
+			return idComparison;
+		}
+		var nameComparison = string.Compare(Name, other.Name, StringComparison.Ordinal);
+		if (nameComparison != 0)
+		{
+			return nameComparison;
+		}
+		return Age.CompareTo(other.Age);
 	}
-}
-public class HtmlTextProcessingStrategy : ITextProcessingStrategy
-{
-	public void Start(StringBuilder sb) => sb.AppendLine("<ul>");
-
-	public void End(StringBuilder sb) => sb.AppendLine("</ul>");
-
-	public void ProcessItem(StringBuilder sb, string item)
+	public int CompareTo(object? obj)
 	{
-		sb.AppendLine($"  <li>{item}</li>");
+		if (ReferenceEquals(null, obj))
+		{
+			return 1;
+		}
+		if (ReferenceEquals(this, obj))
+		{
+			return 0;
+		}
+		return obj is Person other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(Person)}");
 	}
-}
-
-public enum TextProcessingFormat
-{
-	Markdown,
-	Html
+	public static bool operator <(Person? left, Person? right)
+	{
+		return Comparer<Person>.Default.Compare(left, right) < 0;
+	}
+	public static bool operator >(Person? left, Person? right)
+	{
+		return Comparer<Person>.Default.Compare(left, right) > 0;
+	}
+	public static bool operator <=(Person? left, Person? right)
+	{
+		return Comparer<Person>.Default.Compare(left, right) <= 0;
+	}
+	public static bool operator >=(Person? left, Person? right)
+	{
+		return Comparer<Person>.Default.Compare(left, right) >= 0;
+	}
+	public bool Equals(Person? other)
+	{
+		if (ReferenceEquals(null, other))
+		{
+			return false;
+		}
+		if (ReferenceEquals(this, other))
+		{
+			return true;
+		}
+		return Id == other.Id;
+	}
+	public override bool Equals(object? obj)
+	{
+		if (ReferenceEquals(null, obj))
+		{
+			return false;
+		}
+		if (ReferenceEquals(this, obj))
+		{
+			return true;
+		}
+		if (obj.GetType() != this.GetType())
+		{
+			return false;
+		}
+		return Equals((Person)obj);
+	}
+	public override int GetHashCode()
+	{
+		return Id;
+	}
+	public static bool operator ==(Person? left, Person? right) {
+		return Equals(left, right);
+	}
+	public static bool operator !=(Person? left, Person? right) {
+		return !Equals(left, right);
+	}
+	public int Id { get; set; }
+	public string Name { get; set; }
+	public int Age { get; set; }
 }
