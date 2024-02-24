@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NullObject.20", "NullObject
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Observer.21", "Observer.21\Observer.21.csproj", "{1E38A489-49F1-4BCE-B762-5E39BE6158E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "State.22", "State.22\State.22.csproj", "{2F186E62-A9A7-43FE-8A57-538B7D56D614}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,5 +128,9 @@ Global
 		{1E38A489-49F1-4BCE-B762-5E39BE6158E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E38A489-49F1-4BCE-B762-5E39BE6158E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E38A489-49F1-4BCE-B762-5E39BE6158E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F186E62-A9A7-43FE-8A57-538B7D56D614}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F186E62-A9A7-43FE-8A57-538B7D56D614}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F186E62-A9A7-43FE-8A57-538B7D56D614}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F186E62-A9A7-43FE-8A57-538B7D56D614}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
