@@ -1,62 +1,44 @@
-﻿var rules = new Dictionary<State, List<(Trigger, State)>> {
-	[State.OffHook] = [(Trigger.CallDialed, State.Connecting)],
-	[State.Connecting] = [
-		(Trigger.HungUp, State.OnHook),
-		(Trigger.CallConnected, State.Connected)
-	],
-	[State.Connected] = [
-		(Trigger.LeftMessage, State.OnHook),
-		(Trigger.HungUp, State.OnHook),
-		(Trigger.PlacedOnHold, State.OnHold)
-	],
-	[State.OnHold] = [
-		(Trigger.TakenOffHold, State.Connected),
-		(Trigger.HungUp, State.OnHook)
-	]
-};
+﻿using System.Text;
 
-State 
-	state = State.OffHook, 
-	exitState = State.OnHook;
+const string code = "1234";
 
-var queue = new Queue<int>(new[]{0, 1, 2, 0, 0});
+var currentState = LockState.Locked;
+var input = new StringBuilder();
+var mockInputData = new Queue<int>(new[] { 1, 2, 2, 4 });
 
-do
+while (true)
 {
-	Console.WriteLine($"The phone is currently {state}");
-	Console.WriteLine("Select a trigger:");
-
-	for (var i = 0; i < rules[state].Count; i++)
+	switch (currentState)
 	{
-		var (t, _) = rules[state][i];
-		Console.WriteLine($"{i}. {t}");
+		case LockState.Locked:
+			var inputValue = mockInputData.Dequeue();
+			Console.WriteLine($"Input: {inputValue}");
+			input.Append(inputValue);
+			
+			if (input.ToString() == code)
+			{
+				currentState = LockState.Unlocked;
+			}
+
+			if (!code.StartsWith(input.ToString()))
+			{
+				currentState = LockState.FailedToUnlock;
+			}
+			
+			break;
+			
+		case LockState.FailedToUnlock:
+			Console.WriteLine("Failed to unlock =(");
+			return;
+		case LockState.Unlocked:
+			Console.WriteLine("Unlocked!");
+			return;
 	}
+}
 
-	int input = int.Parse(Console.ReadLine());
-	Console.WriteLine($"Chosen {input}");
-
-	var (_, s) = rules[state][input];
-	state = s;
-} 
-while (state != exitState);
-
-Console.WriteLine("We are done using the phone.");
-
-public enum State
- {
-	 OffHook,
-	 Connecting,
-	 Connected,
-	 OnHold,
-	 OnHook
- }
-
- public enum Trigger
- {
-	 CallDialed,
-	 HungUp,
-	 CallConnected,
-	 PlacedOnHold,
-	 TakenOffHold,
-	 LeftMessage
- }
+public enum LockState
+{
+	Locked,
+	FailedToUnlock,
+	Unlocked
+}
