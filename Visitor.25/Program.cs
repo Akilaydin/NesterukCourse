@@ -1,51 +1,86 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 
 var e = new AdditionExpression(new DoubleExpression(1), new AdditionExpression(new DoubleExpression(2), new DoubleExpression(3))); // 1 + (2 + 3)
 
-ExpressionPrinter.AppendExpression(e);
-ExpressionPrinter.Print();
+var calculator = new ExpressionCalculator();
+calculator.Visit(e);
+calculator.Print();
 
-
-public class ExpressionPrinter
+public class ExpressionCalculator : IExpressionVisitor
 {
-	private static StringBuilder s_builder = new();
-
-	public static void Print()
+	private double _result;
+	
+	public void Visit(DoubleExpression expression)
 	{
-		Console.WriteLine(s_builder.ToString());
+		_result = expression.Value;
+	}
+
+	public void Visit(AdditionExpression expression)
+	{
+		expression.Left.AcceptVisitor(this);
+		
+		var a = _result;
+		
+		expression.Right.AcceptVisitor(this);
+		
+		var b = _result;
+
+		_result = a + b;
 	}
 	
-	public static void AppendExpression(Expression expression)
+	public void Print() => Console.WriteLine(_result.ToString(CultureInfo.InvariantCulture));
+}
+
+public class ExpressionPrinter : IExpressionVisitor
+{
+	private StringBuilder _builder = new StringBuilder();
+
+	public void Visit(DoubleExpression expression)
 	{
-		switch (expression)
-		{
-			case DoubleExpression e:
-				s_builder.Append(e.Value);
-				break;
-			case AdditionExpression e2:
-				s_builder.Append(value: '(');
-				AppendExpression(e2.Left);
-				s_builder.Append(value: '+');
-				AppendExpression(e2.Right);
-				s_builder.Append(value: ')');
-				break;
-		}
+		_builder.Append(expression.Value);
 	}
 
-	public static void Clear() => s_builder.Clear();
+	public void Visit(AdditionExpression expression)
+	{
+		_builder.Append(value: '(');
+		expression.Left.AcceptVisitor(this);
+		_builder.Append(value: '+');
+		expression.Right.AcceptVisitor(this);
+		_builder.Append(value: ')');
+	}
+
+	public void Print() => Console.WriteLine(_builder.ToString());
 }
 
 public abstract class Expression
 {
+	public abstract void AcceptVisitor(IExpressionVisitor visitor);
+}
+
+public interface IExpressionVisitor
+{
+	void Visit(DoubleExpression expression);
+	void Visit(AdditionExpression expression);
 }
 
 public class DoubleExpression(double value) : Expression
 {
 	public readonly double Value = value;
+
+	public override void AcceptVisitor(IExpressionVisitor visitor)
+	{
+		visitor.Visit(this);
+	}
 }
 
 public class AdditionExpression(Expression left, Expression right) : Expression
 {
 	public readonly Expression Right = right;
 	public readonly Expression Left = left;
+
+	public override void AcceptVisitor(IExpressionVisitor visitor)
+	{
+		visitor.Visit(this);
+	}
 }
