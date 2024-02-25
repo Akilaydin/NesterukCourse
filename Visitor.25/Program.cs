@@ -3,50 +3,27 @@ using System.Text;
 
 var e = new AdditionExpression(new DoubleExpression(1), new AdditionExpression(new DoubleExpression(2), new DoubleExpression(3))); // 1 + (2 + 3)
 
-var calculator = new ExpressionCalculator();
+var calculator = new ExpressionPrinter();
 calculator.Visit(e);
 calculator.Print();
 
-public class ExpressionCalculator : IExpressionVisitor
-{
-	private double _result;
-	
-	public void Visit(DoubleExpression expression)
-	{
-		_result = expression.Value;
-	}
-
-	public void Visit(AdditionExpression expression)
-	{
-		expression.Left.AcceptVisitor(this);
-		
-		var a = _result;
-		
-		expression.Right.AcceptVisitor(this);
-		
-		var b = _result;
-
-		_result = a + b;
-	}
-	
-	public void Print() => Console.WriteLine(_result.ToString(CultureInfo.InvariantCulture));
-}
-
-public class ExpressionPrinter : IExpressionVisitor
+public class ExpressionPrinter : IVisitor, IVisitor<Expression>, IVisitor<DoubleExpression>, IVisitor<AdditionExpression>
 {
 	private StringBuilder _builder = new StringBuilder();
 
-	public void Visit(DoubleExpression expression)
+	public void Visit(Expression visitable) { }
+
+	public void Visit(DoubleExpression visitable)
 	{
-		_builder.Append(expression.Value);
+		_builder.Append(visitable.Value);
 	}
 
-	public void Visit(AdditionExpression expression)
+	public void Visit(AdditionExpression visitable)
 	{
 		_builder.Append(value: '(');
-		expression.Left.AcceptVisitor(this);
+		visitable.Left.AcceptVisitor(this);
 		_builder.Append(value: '+');
-		expression.Right.AcceptVisitor(this);
+		visitable.Right.AcceptVisitor(this);
 		_builder.Append(value: ')');
 	}
 
@@ -55,22 +32,32 @@ public class ExpressionPrinter : IExpressionVisitor
 
 public abstract class Expression
 {
-	public abstract void AcceptVisitor(IExpressionVisitor visitor);
+	public virtual void AcceptVisitor(IVisitor visitor)
+	{
+		if (visitor is IVisitor<Expression> typedVisitor)
+		{
+			typedVisitor.Visit(this);
+		}
+	}
 }
 
-public interface IExpressionVisitor
+public interface IVisitor<TVisitable>
 {
-	void Visit(DoubleExpression expression);
-	void Visit(AdditionExpression expression);
+	void Visit(TVisitable visitable);
 }
+
+public interface IVisitor; //Marker interface
 
 public class DoubleExpression(double value) : Expression
 {
 	public readonly double Value = value;
 
-	public override void AcceptVisitor(IExpressionVisitor visitor)
+	public override void AcceptVisitor(IVisitor visitor)
 	{
-		visitor.Visit(this);
+		if (visitor is IVisitor<DoubleExpression> typedVisitor)
+		{
+			typedVisitor.Visit(this);
+		}
 	}
 }
 
@@ -79,8 +66,11 @@ public class AdditionExpression(Expression left, Expression right) : Expression
 	public readonly Expression Right = right;
 	public readonly Expression Left = left;
 
-	public override void AcceptVisitor(IExpressionVisitor visitor)
+	public override void AcceptVisitor(IVisitor visitor)
 	{
-		visitor.Visit(this);
+		if (visitor is IVisitor<AdditionExpression> typedVisitor)
+		{
+			typedVisitor.Visit(this);
+		}
 	}
 }
