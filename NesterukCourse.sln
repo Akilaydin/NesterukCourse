@@ -46,6 +46,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Strategy.23", "Strategy.23\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemplateMethod.24", "TemplateMethod.24\TemplateMethod.24.csproj", "{D41C1DA0-5963-4C97-8725-86462DFE6F68}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Visitor.25", "Visitor.25\Visitor.25.csproj", "{214AE7B4-5B1D-4B4C-8899-BD6B3FFADFB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -144,5 +146,9 @@ Global
 		{D41C1DA0-5963-4C97-8725-86462DFE6F68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D41C1DA0-5963-4C97-8725-86462DFE6F68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D41C1DA0-5963-4C97-8725-86462DFE6F68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{214AE7B4-5B1D-4B4C-8899-BD6B3FFADFB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{214AE7B4-5B1D-4B4C-8899-BD6B3FFADFB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{214AE7B4-5B1D-4B4C-8899-BD6B3FFADFB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{214AE7B4-5B1D-4B4C-8899-BD6B3FFADFB8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
